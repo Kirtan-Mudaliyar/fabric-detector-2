@@ -1,0 +1,8 @@
+
+streamlit
+ultralytics
+streamlit-webrtc
+av
+numpy
+Pillow
+opencv-python-headless

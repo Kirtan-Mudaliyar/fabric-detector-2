@@ -1,0 +1,12 @@
+path: ./datasets
+train: train/images
+val: val/images
+nc: 6
+names: [
+  'Torn or Snapped Threads',
+  'Lumps or Tangles',
+  'Wrinkles or Uneven Weaving',
+  'Damaged Edges',
+  'Dirt or Stains',
+  'Perfect'
+]
