@@ -2,13 +2,19 @@ import streamlit as st
 import numpy as np
 from ultralytics import YOLO
 from PIL import Image
-from streamlit_webrtc import (
-    webrtc_streamer,
-    VideoProcessorBase,
-    RTCConfiguration,
-    WebRtcMode,  # ✅ REQUIRED for mode=WebRtcMode.SENDRECV
-)
 import av
+
+# ✅ Try importing streamlit_webrtc safely
+try:
+    from streamlit_webrtc import (
+        webrtc_streamer,
+        VideoProcessorBase,
+        RTCConfiguration,
+        WebRtcMode,
+    )
+    WEBCAM_AVAILABLE = True
+except ModuleNotFoundError:
+    WEBCAM_AVAILABLE = False
 
 # ✅ Load YOLOv8 model
 model = YOLO("weights/best.pt")
@@ -20,6 +26,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 def set_custom_theme():
     st.markdown("""
         <style>
@@ -27,19 +34,15 @@ def set_custom_theme():
                 background-color: #0f1117;
                 color: #e0e0e0;
             }
-
             [data-testid="stSidebar"] {
                 background-color: #161a24;
             }
-
             h1, h2, h3 {
                 color: #00f7ff;
             }
-
             .markdown-text-container {
                 color: #e0e0e0;
             }
-
             .stButton > button {
                 background-color: #1e90ff;
                 color: white;
@@ -48,16 +51,13 @@ def set_custom_theme():
                 padding: 0.5em 1em;
                 transition: all 0.3s ease;
             }
-
             .stButton > button:hover {
                 background-color: #00bfff;
                 color: black;
             }
-
             img {
                 border-radius: 10px;
             }
-
             .stRadio > div {
                 background-color: #1a1d2b;
                 padding: 0.5em;
@@ -68,7 +68,6 @@ def set_custom_theme():
 
 set_custom_theme()
 
-
 st.title(" Fab Watch – Real-Time AI Fabric Defect Detection System")
 st.markdown("The Fabric Defect Detector is a real-time AI-based web app built using YOLOv8 to identify fabric defects like holes, pinch, broken stitch and stains from images or live webcam input. Trained on the Multi-Class Fabric Defect Detection Dataset dataset and developed using Streamlit, it offers a fast and user-friendly solution for textile quality inspection.")
 
@@ -77,10 +76,10 @@ with st.sidebar:
     st.image("banner.jpg", caption="Example: Defective Fabric", use_container_width=True)
     st.markdown("""
 ## Team Details
-1) Kirtan Mudaliyar
-2) Namrata Rathod
-3) Anshal Suthar
-4) Akansha Ravat
+1) Kirtan Mudaliyar  
+2) Namrata Rathod  
+3) Anshal Suthar  
+4) Akansha Ravat  
 5) Dishant Modi
     """)
 
@@ -90,7 +89,11 @@ def detect_defects(image):
     return results.plot()
 
 # === Input Method Selection
-input_mode = st.radio("Choose Input Method:", ["Upload Image", "Real-Time tracking"])
+input_options = ["Upload Image"]
+if WEBCAM_AVAILABLE:
+    input_options.append("Real-Time tracking")
+
+input_mode = st.radio("Choose Input Method:", input_options)
 
 # === 📤 Upload Mode
 if input_mode == "Upload Image":
@@ -103,22 +106,21 @@ if input_mode == "Upload Image":
 
         with col1:
             st.image(image, caption="Uploaded Image", width=400)
-            detect = st.button("Detect Defects")  # 👈 Button just below input image
+            detect = st.button("Detect Defects")
 
         with col2:
             if 'detect' in locals() and detect:
                 output = detect_defects(np.array(image))
                 st.image(output, caption="Detection Output", width=400)
 
-
 # === 📷 Real-Time Webcam Mode
-else:
+elif input_mode == "Real-Time tracking" and WEBCAM_AVAILABLE:
     st.markdown("### Live Webcam Feed (YOLOv8 Real-Time Detection)")
 
     class YOLOVideoProcessor(VideoProcessorBase):
         def recv(self, frame):
             img = frame.to_ndarray(format="bgr24")
-            results = model(img,conf=0.6)[0]
+            results = model(img, conf=0.6)[0]
             annotated_frame = results.plot()
             return av.VideoFrame.from_ndarray(annotated_frame, format="bgr24")
 
@@ -128,7 +130,7 @@ else:
 
     webrtc_streamer(
         key="realtime-detection",
-        mode=WebRtcMode.SENDRECV,  # ✅ Enum instead of string
+        mode=WebRtcMode.SENDRECV,
         rtc_configuration=rtc_config,
         video_processor_factory=YOLOVideoProcessor,
         media_stream_constraints={"video": True, "audio": False},
