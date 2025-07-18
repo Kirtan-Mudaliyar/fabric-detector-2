@@ -70,7 +70,7 @@ set_custom_theme()
 
 
 st.title(" Fab Watch – Real-Time AI Fabric Defect Detection System")
-st.markdown("The Fabric Defect Detector is a real-time AI-based web app built using YOLOv8 to identify fabric defects like holes, pinch, broken stitch and stains from images or live webcam input. Trained on the 'Multi-Class Fabric Defect Detection Dataset' dataset and developed using Streamlit, it offers a fast and user-friendly solution for textile quality inspection.")
+st.markdown("The Fabric Defect Detector is a real-time AI-based web app built using YOLOv8 to identify fabric defects like holes, pinch, broken stitch and stains from images or live webcam input. Trained on the Multi-Class Fabric Defect Detection Dataset dataset and developed using Streamlit, it offers a fast and user-friendly solution for textile quality inspection.")
 
 # === 📌 Sidebar Info ===
 with st.sidebar:
